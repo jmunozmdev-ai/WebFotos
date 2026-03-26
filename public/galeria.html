@@ -2,29 +2,99 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <title>Galería de Fotos</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Galería de la Boda</title>
     <style>
-        .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 10px; }
-        img { width: 100%; border-radius: 8px; }
-        .photo-card { border: 1px solid #ccc; padding: 5px; text-align: center; }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f9f6f2; /* Color crema suave */
+            margin: 0;
+            padding: 20px;
+            text-align: center;
+        }
+        h1 {
+            color: #5d4037;
+            margin-bottom: 20px;
+        }
+        .btn-volver {
+            display: inline-block;
+            margin-bottom: 20px;
+            padding: 10px 20px;
+            background-color: #8d6e63;
+            color: white;
+            text-decoration: none;
+            border-radius: 25px;
+            font-weight: bold;
+        }
+        /* Diseño de la Galería */
+        #contenedor-galeria {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+            gap: 15px;
+            max-width: 1000px;
+            margin: 0 auto;
+        }
+        #contenedor-galeria img {
+            width: 100%;
+            height: 200px; /* Altura fija para orden */
+            object-fit: cover; /* Recorta la imagen para que encaje sin deformarse */
+            border-radius: 12px;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+            transition: transform 0.3s ease;
+        }
+        #contenedor-galeria img:hover {
+            transform: scale(1.05);
+        }
+        .loader {
+            font-style: italic;
+            color: #888;
+        }
     </style>
 </head>
 <body>
-    <h1>Galería del Evento</h1>
-    <div id="gallery" class="grid"></div>
+
+    <a href="/" class="btn-volver">← Subir más fotos</a>
+    <h1>Momentos Inolvidables</h1>
+
+    <div id="loader" class="loader">Cargando recuerdos...</div>
+    <div id="contenedor-galeria"></div>
 
     <script>
-        fetch('/photos')
-            .then(res => res.json())
-            .then(files => {
-                const gallery = document.getElementById('gallery');
-                files.forEach(file => {
-                    const div = document.createElement('div');
-                    div.className = 'photo-card';
-                    div.innerHTML = `<img src="/uploads/${file}"><p>${file.split('-')[0]}</p>`;
-                    gallery.appendChild(div);
+        async function cargarGaleria() {
+            try {
+                // Pedimos las URLs de Cloudinary a nuestro servidor
+                const respuesta = await fetch('/api/fotos');
+                const fotos = await respuesta.json();
+                
+                const contenedor = document.getElementById('contenedor-galeria');
+                const loader = document.getElementById('loader');
+                
+                // Limpiamos el cargador
+                loader.style.display = 'none';
+                contenedor.innerHTML = ''; 
+
+                if (fotos.length === 0) {
+                    contenedor.innerHTML = '<p>Aún no hay fotos. ¡Sé el primero en subir una!</p>';
+                    return;
+                }
+
+                // Creamos cada imagen en el HTML
+                fotos.forEach(url => {
+                    const img = document.createElement('img');
+                    img.src = url;
+                    img.alt = "Foto de la boda";
+                    img.loading = "lazy"; // Mejora el rendimiento al cargar
+                    contenedor.appendChild(img);
                 });
-            });
+
+            } catch (error) {
+                console.error("Error cargando la galería:", error);
+                document.getElementById('loader').innerText = "Error al cargar las fotos.";
+            }
+        }
+
+        // Ejecutar la función al abrir la página
+        window.onload = cargarGaleria;
     </script>
 </body>
 </html>

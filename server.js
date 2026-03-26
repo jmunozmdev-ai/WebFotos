@@ -1,64 +1,66 @@
 const express = require('express');
-const multer = require('multer');
 const cloudinary = require('cloudinary').v2;
+const multer = require('multer');
 const { CloudinaryStorage } = require('multer-storage-cloudinary');
 const path = require('path');
+
 const app = express();
+const PORT = process.env.PORT || 3000;
 
 // 1. CONFIGURACIÓN DE CLOUDINARY
-// Render leerá automáticamente las variables de entorno que configures en su panel
+// Asegúrate de poner estos nombres EXACTOS en las "Environment Variables" de Render
 cloudinary.config({
   cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
   api_key: process.env.CLOUDINARY_API_KEY,
   api_secret: process.env.CLOUDINARY_API_SECRET
 });
 
-// 2. CONFIGURACIÓN DEL ALMACENAMIENTO EN LA NUBE
+// 2. CONFIGURACIÓN DE ALMACENAMIENTO (Storage)
 const storage = new CloudinaryStorage({
   cloudinary: cloudinary,
   params: {
-    folder: 'fotos_boda', // Nombre de la carpeta que se creará en tu Cloudinary
-    allowed_formats: ['jpg', 'png', 'jpeg', 'gif'],
+    folder: 'fotos_boda', // Nombre de la carpeta en tu Cloudinary
+    allowed_formats: ['jpg', 'png', 'jpeg', 'heic'],
   },
 });
 
 const upload = multer({ storage: storage });
 
-// Array temporal para guardar las URLs de las fotos subidas
-// (Nota: Esto se borra si el servidor de Render se reinicia, 
-// pero las fotos seguirán seguras en Cloudinary)
-let database_fotos = [];
+// 3. ARCHIVOS ESTÁTICOS (Para que cargue tu index.html, css, etc.)
+app.use(express.static(path.join(__dirname, 'public')));
 
-// Middleware para archivos estáticos (tu index.html, css, etc.)
-app.use(express.static('public'));
-app.use(express.json());
-
-// 3. RUTA PARA SUBIR LA FOTO
-app.post('/upload', upload.single('photo'), (req, res) => {
-  if (req.file && req.file.path) {
-    const nuevaFoto = {
-      url: req.file.path, // Esta es la URL de Cloudinary
-      id: req.file.filename,
-      fecha: new Date()
-    };
-    
-    database_fotos.push(nuevaFoto);
-    
-    console.log("¡Éxito! Foto subida a Cloudinary:", nuevaFoto.url);
-    res.json(nuevaFoto);
-  } else {
-    res.status(400).send('Error: No se pudo subir la imagen a la nube.');
+// 4. RUTA PARA SUBIR LA FOTO
+app.post('/upload', upload.single('foto'), async (req, res) => {
+  try {
+    console.log("Archivo subido con éxito a Cloudinary:", req.file.path);
+    // Redirigimos al inicio para que no se quede la pantalla en blanco
+    res.redirect('/'); 
+  } catch (error) {
+    console.error("Error al subir:", error);
+    res.status(500).send("Hubo un problema al subir tu foto. Inténtalo de nuevo.");
   }
 });
 
-// 4. RUTA PARA OBTENER TODAS LAS FOTOS
-app.get('/fotos', (req, res) => {
-  res.json(database_fotos);
+// 5. RUTA PARA OBTENER LAS FOTOS (Para la galería)
+app.get('/api/fotos', async (req, res) => {
+  try {
+    const { resources } = await cloudinary.api.resources({
+      type: 'upload',
+      prefix: 'fotos_boda/', // Debe coincidir con el nombre de la carpeta arriba
+      max_results: 100 // Cantidad de fotos que quieres mostrar
+    });
+    
+    // Extraemos solo las URLs seguras
+    const urls = resources.map(file => file.secure_url);
+    res.json(urls);
+  } catch (error) {
+    console.error("Error al obtener fotos:", error);
+    res.status(500).json({ error: "No se pudieron cargar las fotos" });
+  }
 });
 
-// 5. INICIAR EL SERVIDOR
-const PORT = process.env.PORT || 3000;
+// 6. INICIAR EL SERVIDOR
 app.listen(PORT, () => {
-  console.log(`Servidor corriendo en http://localhost:${PORT}`);
+  console.log(`Servidor corriendo en el puerto ${PORT}`);
   console.log("Listo para recibir fotos de la boda 💍");
 });
