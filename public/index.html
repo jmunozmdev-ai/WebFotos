@@ -3,54 +3,76 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Fotos de la Boda</title>
+    <title>Sube tu foto - Nuestra Boda</title>
     <style>
-        /* Unos estilos básicos para que se vea ordenado en el celular */
         body {
-            font-family: Arial, sans-serif;
+            font-family: 'Arial', sans-serif;
+            background-color: #f4f4f9;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            margin: 0;
+            padding: 20px;
             text-align: center;
-            padding: 30px 15px;
-            background-color: #fdfbf7; /* Un color cremita */
-            color: #333;
         }
-        .boton-subir {
-            background-color: #d4af37; /* Color dorado */
+        .card {
+            background: white;
+            padding: 30px;
+            border-radius: 20px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+            max-width: 400px;
+            width: 100%;
+        }
+        h1 { color: #5d4037; font-size: 24px; }
+        p { color: #777; margin-bottom: 25px; }
+        
+        /* Estilo del botón de archivo */
+        input[type="file"] {
+            margin-bottom: 20px;
+            width: 100%;
+        }
+
+        /* Botón de envío */
+        .btn-enviar {
+            background-color: #8d6e63;
             color: white;
-            padding: 15px 25px;
             border: none;
-            border-radius: 8px;
+            padding: 15px 30px;
+            border-radius: 30px;
             font-size: 18px;
             font-weight: bold;
             cursor: pointer;
-            margin-top: 20px;
             width: 100%;
-            max-width: 300px;
+            transition: background 0.3s;
         }
-        .input-foto {
-            margin: 20px auto;
+        .btn-enviar:hover {
+            background-color: #5d4037;
+        }
+        .link-galeria {
+            margin-top: 20px;
             display: block;
+            color: #8d6e63;
+            text-decoration: none;
+            font-weight: bold;
         }
     </style>
 </head>
 <body>
 
-    <h1>📸 Captura el momento</h1>
-    <p>Sube las fotos directamente a nuestro álbum digital</p>
+    <div class="card">
+        <h1>📸 ¡Comparte tu foto!</h1>
+        <p>Ayúdanos a guardar los mejores recuerdos de este día especial.</p>
 
-    <form action="/upload" method="POST" enctype="multipart/form-data">
-        
-        <input 
-            type="file" 
-            accept="image/*" 
-            capture="environment" 
-            name="photo" 
-            id="photo" 
-            class="input-foto"
-            required
-        >
-        
-        <button type="submit" class="boton-subir">Subir Foto ☁️</button>
-    </form>
+        <form action="/upload" method="POST" enctype="multipart/form-data">
+            <input type="file" name="foto" accept="image/*" capture="camera" required>
+            <br>
+            <button type="submit" class="btn-enviar">Subir Foto</button>
+        </form>
+
+        <a href="/galeria.html" class="link-galeria">Ver Galería →</a>
+    </div>
 
 </body>
 </html>
