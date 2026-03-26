@@ -3,22 +3,54 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Captura de Fotos</title>
-    <link rel="stylesheet" href="style.css">
+    <title>Fotos de la Boda</title>
+    <style>
+        /* Unos estilos básicos para que se vea ordenado en el celular */
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            padding: 30px 15px;
+            background-color: #fdfbf7; /* Un color cremita */
+            color: #333;
+        }
+        .boton-subir {
+            background-color: #d4af37; /* Color dorado */
+            color: white;
+            padding: 15px 25px;
+            border: none;
+            border-radius: 8px;
+            font-size: 18px;
+            font-weight: bold;
+            cursor: pointer;
+            margin-top: 20px;
+            width: 100%;
+            max-width: 300px;
+        }
+        .input-foto {
+            margin: 20px auto;
+            display: block;
+        }
+    </style>
 </head>
 <body>
-    <div class="container">
-        <h2>Sube tu foto</h2>
-        <input type="text" id="userName" placeholder="Tu nombre" required>
-        
-        <div id="camera-container">
-            <video id="video" autoplay playsinline></video>
-            <button id="capture-btn">Tomar Foto</button>
-        </div>
 
-        <canvas id="canvas" style="display:none;"></canvas>
-        <div id="status"></div>
-    </div>
-    <script src="script.js"></script>
+    <h1>📸 Captura el momento</h1>
+    <p>Sube las fotos directamente a nuestro álbum digital</p>
+
+    <form action="/upload" method="POST" enctype="multipart/form-data">
+        
+        <input 
+            type="file" 
+            accept="image/*" 
+            capture="environment" 
+            name="photo" 
+            id="photo" 
+            class="input-foto"
+            required
+        >
+        
+        <button type="submit" class="boton-subir">Subir Foto ☁️</button>
+    </form>
+
 </body>
 </html>
